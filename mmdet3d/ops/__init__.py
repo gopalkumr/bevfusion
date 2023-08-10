@@ -2,13 +2,13 @@ from mmcv.ops import (
     RoIAlign,
     SigmoidFocalLoss,
     get_compiler_version,
-    get_compiling_cuda_version,
     nms,
     roi_align,
     sigmoid_focal_loss,
 )
 
 from .ball_query import ball_query
+from .feature_decorator import feature_decorator
 from .furthest_point_sample import (
     Points_Sampler,
     furthest_point_sample,
@@ -19,11 +19,9 @@ from .group_points import GroupAll, QueryAndGroup, group_points, grouping_operat
 from .interpolate import three_interpolate, three_nn
 from .knn import knn
 from .norm import NaiveSyncBatchNorm1d, NaiveSyncBatchNorm2d
-from .paconv import PAConv, PAConvCUDA, assign_score_withk
+from .paconv import PAConv, assign_score_withk
 from .bev_pool import *
 from .pointnet_modules import (
-    PAConvCUDASAModule,
-    PAConvCUDASAModuleMSG,
     PAConvSAModule,
     PAConvSAModuleMSG,
     PointFPModule,
@@ -35,7 +33,6 @@ from .roiaware_pool3d import (
     RoIAwarePool3d,
     points_in_boxes_batch,
     points_in_boxes_cpu,
-    points_in_boxes_gpu,
 )
 from .sparse_block import SparseBasicBlock, SparseBottleneck, make_sparse_convmodule
 from .voxel import DynamicScatter, Voxelization, dynamic_scatter, voxelization
@@ -46,7 +43,6 @@ __all__ = [
     "RoIAlign",
     "roi_align",
     "get_compiler_version",
-    "get_compiling_cuda_version",
     "NaiveSyncBatchNorm1d",
     "NaiveSyncBatchNorm2d",
     "batched_nms",
@@ -59,7 +55,6 @@ __all__ = [
     "SparseBasicBlock",
     "SparseBottleneck",
     "RoIAwarePool3d",
-    "points_in_boxes_gpu",
     "points_in_boxes_cpu",
     "make_sparse_convmodule",
     "ball_query",
@@ -79,14 +74,11 @@ __all__ = [
     "points_in_boxes_batch",
     "get_compiler_version",
     "assign_score_withk",
-    "get_compiling_cuda_version",
     "Points_Sampler",
     "build_sa_module",
     "PAConv",
-    "PAConvCUDA",
     "PAConvSAModuleMSG",
     "PAConvSAModule",
-    "PAConvCUDASAModule",
-    "PAConvCUDASAModuleMSG",
     "bev_pool",
+    "feature_decorator",
 ]

@@ -26,10 +26,6 @@ def main():
     configs.load(args.config, recursive=True)
     cfg = Config(recursive_eval(configs), filename=args.config)
     # set cudnn_benchmark
-    if cfg.get("cudnn_benchmark", False):
-        torch.backends.cudnn.benchmark = True
-    cfg.model.pretrained = None
-    cfg.data.test.test_mode = True
 
     # build the dataloader
     # TODO: support multiple images per gpu (only minor changes are needed)
@@ -83,7 +79,6 @@ def main():
             fps = (i + 1 - num_warmup) / pure_inf_time
             print(f"Overall fps: {fps:.1f} img / s")
             break
-
 
 if __name__ == "__main__":
     main()

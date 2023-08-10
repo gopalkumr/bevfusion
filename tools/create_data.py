@@ -3,7 +3,6 @@ import argparse
 from data_converter import nuscenes_converter as nuscenes_converter
 from data_converter.create_gt_database import create_groundtruth_database
 
-
 def nuscenes_data_prep(
     root_path,
     info_prefix,
@@ -49,7 +48,6 @@ def nuscenes_data_prep(
         f"{out_dir}/{info_prefix}_infos_train.pkl",
         load_augmented=load_augmented,
     )
-
 
 parser = argparse.ArgumentParser(description="Data converter arg parser")
 parser.add_argument("dataset", metavar="kitti", help="name of the dataset")

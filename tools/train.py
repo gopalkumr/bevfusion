@@ -7,8 +7,6 @@ import time
 import numpy as np
 import torch
 from mmcv import Config
-from torchpack import distributed as dist
-from torchpack.environ import auto_set_run_dir, set_run_dir
 from torchpack.utils.config import configs
 
 from mmdet3d.apis import train_model
@@ -16,10 +14,7 @@ from mmdet3d.datasets import build_dataset
 from mmdet3d.models import build_model
 from mmdet3d.utils import get_root_logger, convert_sync_batchnorm, recursive_eval
 
-
 def main():
-    dist.init()
-
     parser = argparse.ArgumentParser()
     parser.add_argument("config", metavar="FILE", help="config file")
     parser.add_argument("--run-dir", metavar="DIR", help="run directory")
@@ -31,7 +26,7 @@ def main():
     cfg = Config(recursive_eval(configs), filename=args.config)
 
     torch.backends.cudnn.benchmark = cfg.cudnn_benchmark
-    torch.cuda.set_device(dist.local_rank())
+    torch.device("cpu")  # Set the default device to CPU
 
     if args.run_dir is None:
         args.run_dir = auto_set_run_dir()
@@ -77,11 +72,10 @@ def main():
         model,
         datasets,
         cfg,
-        distributed=True,
+        distributed=False,  # Set distributed to False for CPU training
         validate=True,
         timestamp=timestamp,
     )
-
 
 if __name__ == "__main__":
     main()

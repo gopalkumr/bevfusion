@@ -4,7 +4,6 @@ import torch
 
 from mmdet3d.ops.iou3d.iou3d_utils import nms_gpu, nms_normal_gpu
 
-
 def box3d_multiclass_nms(
     mlvl_bboxes,
     mlvl_bboxes_for_nms,
@@ -125,7 +124,6 @@ def box3d_multiclass_nms(
 
     return results
 
-
 def aligned_3d_nms(boxes, scores, classes, thresh):
     """3d nms for aligned boxes.
 
@@ -175,7 +173,6 @@ def aligned_3d_nms(boxes, scores, classes, thresh):
 
     indices = boxes.new_tensor(pick, dtype=torch.long)
     return indices
-
 
 @numba.jit(nopython=True)
 def circle_nms(dets, thresh, post_max_size=83):

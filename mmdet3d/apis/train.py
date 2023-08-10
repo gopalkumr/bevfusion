@@ -15,12 +15,10 @@ from mmdet3d.utils import get_root_logger
 from mmdet.core import DistEvalHook
 from mmdet.datasets import build_dataloader, build_dataset, replace_ImageToTensor
 
-
 def train_model(
     model,
     dataset,
     cfg,
-    distributed=False,
     validate=False,
     timestamp=None,
 ):
@@ -35,22 +33,11 @@ def train_model(
             cfg.data.samples_per_gpu,
             cfg.data.workers_per_gpu,
             None,
-            dist=distributed,
+            dist=False,
             seed=cfg.seed,
         )
         for ds in dataset
     ]
-
-    # put model on gpus
-    find_unused_parameters = cfg.get("find_unused_parameters", False)
-    # Sets the `find_unused_parameters` parameter in
-    # torch.nn.parallel.DistributedDataParallel
-    model = MMDistributedDataParallel(
-        model.cuda(),
-        device_ids=[torch.cuda.current_device()],
-        broadcast_buffers=False,
-        find_unused_parameters=find_unused_parameters,
-    )
 
     # build runner
     optimizer = build_optimizer(model, cfg.optimizer)
@@ -65,39 +52,22 @@ def train_model(
             meta={},
         ),
     )
-    
+
     if hasattr(runner, "set_dataset"):
         runner.set_dataset(dataset)
 
     # an ugly workaround to make .log and .log.json filenames the same
     runner.timestamp = timestamp
 
-    # fp16 setting
-    fp16_cfg = cfg.get("fp16", None)
-    if fp16_cfg is not None:
-        if "cumulative_iters" in cfg.optimizer_config:
-            optimizer_config = GradientCumulativeFp16OptimizerHook(
-                **cfg.optimizer_config, **fp16_cfg, distributed=distributed
-            )
-        else:
-            optimizer_config = Fp16OptimizerHook(
-                **cfg.optimizer_config, **fp16_cfg, distributed=distributed
-            )
-    elif distributed and "type" not in cfg.optimizer_config:
-        optimizer_config = OptimizerHook(**cfg.optimizer_config)
-    else:
-        optimizer_config = cfg.optimizer_config
-
     # register hooks
     runner.register_training_hooks(
         cfg.lr_config,
-        optimizer_config,
+        cfg.optimizer_config,
         cfg.checkpoint_config,
         cfg.log_config,
         cfg.get("momentum_config", None),
     )
-    if isinstance(runner, EpochBasedRunner):
-        runner.register_hook(DistSamplerSeedHook())
+    runner.register_hook(DistSamplerSeedHook())
 
     # register eval hooks
     if validate:
@@ -111,7 +81,7 @@ def train_model(
             val_dataset,
             samples_per_gpu=val_samples_per_gpu,
             workers_per_gpu=cfg.data.workers_per_gpu,
-            dist=distributed,
+            dist=False,
             shuffle=False,
         )
         eval_cfg = cfg.get("evaluation", {})

@@ -17,7 +17,6 @@ from mmdet3d.core.utils import visualize_camera, visualize_lidar, visualize_map
 from mmdet3d.datasets import build_dataloader, build_dataset
 from mmdet3d.models import build_model
 
-
 def recursive_eval(obj, globals=None):
     if globals is None:
         globals = copy.deepcopy(obj)
@@ -33,7 +32,6 @@ def recursive_eval(obj, globals=None):
         obj = recursive_eval(obj, globals)
 
     return obj
-
 
 def main() -> None:
     dist.init()
@@ -55,7 +53,7 @@ def main() -> None:
     cfg = Config(recursive_eval(configs), filename=args.config)
 
     torch.backends.cudnn.benchmark = cfg.cudnn_benchmark
-    torch.cuda.set_device(dist.local_rank())
+    #torch.cuda.set_device(dist.local_rank())
 
     # build the dataloader
     dataset = build_dataset(cfg.data[args.split])
@@ -63,7 +61,7 @@ def main() -> None:
         dataset,
         samples_per_gpu=1,
         workers_per_gpu=cfg.data.workers_per_gpu,
-        dist=True,
+        dist=False,
         shuffle=False,
     )
 
@@ -71,12 +69,6 @@ def main() -> None:
     if args.mode == "pred":
         model = build_model(cfg.model)
         load_checkpoint(model, args.checkpoint, map_location="cpu")
-
-        model = MMDistributedDataParallel(
-            model.cuda(),
-            device_ids=[torch.cuda.current_device()],
-            broadcast_buffers=False,
-        )
         model.eval()
 
     for data in tqdm(dataflow):
@@ -160,7 +152,6 @@ def main() -> None:
                 masks,
                 classes=cfg.map_classes,
             )
-
 
 if __name__ == "__main__":
     main()

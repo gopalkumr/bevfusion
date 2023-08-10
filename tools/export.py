@@ -17,7 +17,6 @@ from mmdet.datasets import replace_ImageToTensor
 from onnxsim import simplify
 from tqdm import tqdm
 
-
 def parse_args():
     parser = argparse.ArgumentParser(description="MMDet test (and eval) a model")
     parser.add_argument("config", help="test config file path")
@@ -35,7 +34,6 @@ def parse_args():
     )
     args = parser.parse_args()
     return args
-
 
 def main():
     args = parse_args()
@@ -103,7 +101,6 @@ def main():
             model, _ = simplify(model)
             onnx.save(model, "model.onnx")
             return
-
 
 if __name__ == "__main__":
     main()
